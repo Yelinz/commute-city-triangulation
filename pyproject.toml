@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "commute-city-triangulation"
+version = "0.1.0"
+description = ""
+authors = ["Yelin Zhang <y3lin.zhang@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ipykernel = "^6.24.0"
+pandas = "^2.0.3"
+gtfs-kit = "^5.2.7"
+seaborn = "^0.12.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

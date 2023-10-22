@@ -18,3 +18,5 @@ Might need migration to a Database, if the memory requirements are too high.
 Select the destination city in the notebook and run the rest.
 
 Be sure to have the latest GTFS zip from which ever preferred source.
+
+poetry run streamlit run app.py

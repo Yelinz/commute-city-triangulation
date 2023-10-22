@@ -11,6 +11,8 @@ ipykernel = "^6.24.0"
 pandas = "^2.0.3"
 gtfs-kit = "^5.2.7"
 seaborn = "^0.12.2"
+streamlit = "^1.27.2"
+streamlit-folium = "^0.15.0"
 
 
 [build-system]

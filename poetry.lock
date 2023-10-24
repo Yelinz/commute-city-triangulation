@@ -2352,23 +2352,6 @@ watchdog = {version = ">=2.1.5", markers = "platform_system != \"Darwin\""}
 snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python (>=0.9.0)"]
 
 [[package]]
-name = "streamlit-folium"
-version = "0.15.0"
-description = "Render Folium objects in Streamlit"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "streamlit_folium-0.15.0-py3-none-any.whl", hash = "sha256:e2f05d552d4ece6c618e16058c5627a0ecabfa1e47e6419ac8ca5fa627700ebd"},
-    {file = "streamlit_folium-0.15.0.tar.gz", hash = "sha256:2908c98487e914493c730fb71c70fa6dfb1e482a404b7c10b7511579358701c1"},
-]
-
-[package.dependencies]
-branca = "*"
-folium = ">=0.13"
-jinja2 = "*"
-streamlit = ">=1.13.0"
-
-[[package]]
 name = "tenacity"
 version = "8.2.3"
 description = "Retry code until it succeeds"
@@ -2606,4 +2589,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "44cd07ec376eb160248d819dc77ff76f62f1bfd3b92393320a69554689665e8d"
+content-hash = "7a8c7fef0a90cbc2bbb5c32e94a6586c8ddc8a3366a6d78914d7282aad362168"

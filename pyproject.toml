@@ -9,10 +9,11 @@ readme = "README.md"
 python = "^3.10"
 ipykernel = "^6.24.0"
 pandas = "^2.0.3"
-gtfs-kit = "^5.2.7"
+gtfs-kit = "^6.0.0"
 seaborn = "^0.12.2"
-streamlit = "^1.27.2"
-pydeck = "^0.8.0"
+
+dash = "^2.14.1"
+plotly = "^5.18.0"
 
 
 [build-system]

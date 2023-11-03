@@ -11,10 +11,15 @@ ipykernel = "^6.24.0"
 pandas = "^2.0.3"
 gtfs-kit = "^6.0.0"
 seaborn = "^0.12.2"
+streamlit = "^1.28.0"
+streamlit-folium = "^0.15.0"
+altair = "^5.1.2"
 
-dash = "^2.14.1"
-plotly = "^5.18.0"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+ruff = "^0.1.4"
 
 [build-system]
 requires = ["poetry-core"]

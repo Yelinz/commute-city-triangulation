@@ -8,6 +8,7 @@ import pydeck
 #
 # FIXME: Steamlit version has to be abandoned as there is no good interactivity.
 # https://discuss.streamlit.io/t/is-pydeck-chart-click-interaction-possible/49965/2
+# version 1.28
 #
 
 
@@ -49,9 +50,14 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
             query_string += " and "
     active_services = _feed.calendar.query(query_string)["service_id"]
 
-    route_trips = _feed.trips.loc[_feed.trips["route_id"].isin(route_ids) & _feed.trips["service_id"].isin(active_services)]
+    route_trips = _feed.trips.loc[
+        _feed.trips["route_id"].isin(route_ids)
+        & _feed.trips["service_id"].isin(active_services)
+    ]
 
-    relevant_stops = _feed.stop_times.loc[_feed.stop_times["trip_id"].isin(route_trips["trip_id"])]
+    relevant_stops = _feed.stop_times.loc[
+        _feed.stop_times["trip_id"].isin(route_trips["trip_id"])
+    ]
 
     # parse arrival and departure to timedeltas
     relevant_stops.loc[:, "arrival_time_parsed"] = pd.to_timedelta(
@@ -78,28 +84,39 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
         )
     ]
 
-    stops_trips = pd.merge(filtered_stops, _feed.trips[["trip_id", "route_id"]], on="trip_id", how="left")
+    stops_trips = pd.merge(
+        filtered_stops, _feed.trips[["trip_id", "route_id"]], on="trip_id", how="left"
+    )
     # map the stops to the route
-    stops_route = pd.merge(stops_trips, _feed.routes[["route_id", "route_short_name"]], on="route_id", how="left")
+    stops_route = pd.merge(
+        stops_trips,
+        _feed.routes[["route_id", "route_short_name"]],
+        on="route_id",
+        how="left",
+    )
 
     # only use longest trips
-    longest_trips = stops_route.loc[stops_route.groupby(["route_id"])["stop_sequence"].idxmax()]
+    longest_trips = stops_route.loc[
+        stops_route.groupby(["route_id"])["stop_sequence"].idxmax()
+    ]
     # stops_to_display = stops_route.loc[stops_route["trip_id"].isin(longest_trips["trip_id"])]
 
-    longest_trips_stop_times = _feed.stop_times.loc[_feed.stop_times["trip_id"].isin(longest_trips["trip_id"])]
-    longest_trips_stations = _feed.stops.loc[_feed.stops["stop_id"].isin(longest_trips_stop_times["stop_id"])]
+    longest_trips_stop_times = _feed.stop_times.loc[
+        _feed.stop_times["trip_id"].isin(longest_trips["trip_id"])
+    ]
+    longest_trips_stations = _feed.stops.loc[
+        _feed.stops["stop_id"].isin(longest_trips_stop_times["stop_id"])
+    ]
     # TODO: consider all trip options, as some might have divergent routes
     # dedupe stops per route
-    #deduped_stops = stops.sort_values(["stop_sequence"]).groupby("route_id").apply(lambda x: x.loc[x["stop_sequence"].idxmax()])
-    #print(deduped_stops)
+    # deduped_stops = stops.sort_values(["stop_sequence"]).groupby("route_id").apply(lambda x: x.loc[x["stop_sequence"].idxmax()])
+    # print(deduped_stops)
 
     # add all additional data which is needed
     stop_data = pd.merge(longest_trips_stop_times, _feed.trips, on="trip_id")
     stop_data = pd.merge(stop_data, _feed.routes, on="route_id")
     stop_data = pd.merge(stop_data, _feed.stops, on="stop_id")
     return stop_data
-
-
 
 
 def get_trips(_feed, _routes, _excluded_routes, _weekdays_exclusion, _relevant_hours):
@@ -163,8 +180,7 @@ def get_trips(_feed, _routes, _excluded_routes, _weekdays_exclusion, _relevant_h
 
 # def draw_stations(input_stations, *station_dfs):
 def draw_stations(stations):
-
-    #shown_stops = stations.drop_duplicates(subset=["parent_station"], keep='first')
+    # shown_stops = stations.drop_duplicates(subset=["parent_station"], keep='first')
 
     scatter = []
     for stop_index, stop in stations.iterrows():
@@ -174,7 +190,7 @@ def draw_stations(stations):
                 "position": stop[["stop_lon", "stop_lat"]].to_list(),
             }
         )
-    
+
     return pydeck.Layer(
         type="ScatterplotLayer",
         data=scatter,
@@ -263,10 +279,7 @@ active_weekdays = filter_col2.multiselect(
     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
 )
-relevant_hours = filter_col2.slider(
-    "Relevant hours",
-    0, 23, (6, 22), 1
-)
+relevant_hours = filter_col2.slider("Relevant hours", 0, 23, (6, 22), 1)
 
 # if selected_city_a is not None and selected_city_a == selected_city_b:
 #    st.error("Same cities selected")

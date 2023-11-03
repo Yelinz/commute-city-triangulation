@@ -1,6 +1,7 @@
 import streamlit as st
 
-st.markdown("""
+st.markdown(
+    """
 # Documentation
 
 This app is a tool to find direct train connections between two cities in Switzerland.
@@ -12,4 +13,5 @@ Others are faulty data (Train depot) they do not appear in the real timetable.
 
 ## Filters
 
-""")
+"""
+)

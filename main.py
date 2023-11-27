@@ -11,8 +11,11 @@ from processing import (
     get_routes,
     get_stops,
     find_shared,
+    route_details,
 )
 from rendering import generate_legend, draw_routes, draw_stations
+
+MAP_CENTER = (46.848, 8.1336)
 
 # Streamlit app
 #####
@@ -113,8 +116,9 @@ with map_container:
         height=800,
         returned_objects=["last_object_clicked_tooltip"],
         zoom=8,
-        center=(46.848, 8.1336),
+        center=MAP_CENTER,
         use_container_width=True,
+        key="main_map",
     )
 
 # TODO add text how many shared stations there are
@@ -134,34 +138,8 @@ with station_distance_container:
                 active_weekdays,
                 relevant_hours,
             )
-            selected_route = selected_route.sort_values(["stop_sequence", "route_id"])
-            chart_data = selected_route[
-                ["stop_sequence", "route_short_name", "stop_name"]
-            ]
-            chart_data = chart_data.assign(
-                shared=selected_route["stop_id"].isin(shared_stops["stop_id"])
-            )
 
-            time_data = selected_route[["stop_sequence", "route_short_name"]]
-            time_data = time_data.assign(
-                stop_sequence=time_data["stop_sequence"] + 0.5,
-                arrival_time_parsed=pd.to_timedelta(selected_route["arrival_time"]),
-                departure_time_parsed=pd.to_timedelta(selected_route["departure_time"]),
-            )
-
-            time_data["next_stop"] = ""
-            for idx in time_data.index:
-                if idx == time_data.idxmax().iloc[0]:
-                    break
-                travel_time = (
-                    time_data.iloc[idx + 1]["arrival_time_parsed"]
-                    - time_data.iloc[idx]["departure_time_parsed"]
-                )
-                time_data.loc[idx, "next_stop"] = f"{travel_time.seconds // 60} min"
-
-            time_data = time_data.drop(
-                ["arrival_time_parsed", "departure_time_parsed"], axis=1
-            )
+            chart_data, time_data = route_details(selected_route, shared_stops)
 
             scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
             time_annotations = (
@@ -220,7 +198,7 @@ with mini_a:
         map_a,
         height=400,
         zoom=8,
-        center=(46.848, 8.1336),
+        center=MAP_CENTER,
         use_container_width=True,
         key="mini_map_a",
     )
@@ -234,7 +212,7 @@ with mini_b:
         map_b,
         height=400,
         zoom=8,
-        center=(46.848, 8.1336),
+        center=MAP_CENTER,
         use_container_width=True,
         key="mini_map_b",
     )

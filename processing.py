@@ -5,7 +5,7 @@ import gtfs_kit
 
 @st.cache_data
 def load_feed():
-    feed = gtfs_kit.read_feed("gtfs_fp2024_2023-10-18_04-15.zip", dist_units="km")
+    feed = gtfs_kit.read_feed("gtfs.zip", dist_units="km")
     # TODO maybe clean some stations
     return feed
 
@@ -118,3 +118,33 @@ def find_shared(_feed, a, b):
     duped = both.duplicated(["stop_id", "parent_station"])
     # zurich hb is missing rotkreuz aarau
     return both.loc[duped]
+
+
+@st.cache_data
+def route_details(_selected_route, _shared_stops):
+    selected_route = _selected_route.sort_values(["stop_sequence", "route_id"])
+    chart_data = selected_route[["stop_sequence", "route_short_name", "stop_name"]]
+    chart_data = chart_data.assign(
+        shared=selected_route["stop_id"].isin(_shared_stops["stop_id"])
+    )
+
+    time_data = selected_route[["stop_sequence", "route_short_name"]]
+    time_data = time_data.assign(
+        stop_sequence=time_data["stop_sequence"] + 0.5,
+        arrival_time_parsed=pd.to_timedelta(selected_route["arrival_time"]),
+        departure_time_parsed=pd.to_timedelta(selected_route["departure_time"]),
+    )
+
+    time_data["next_stop"] = ""
+    for idx in time_data.index:
+        if idx == time_data.idxmax().iloc[0]:
+            break
+        travel_time = (
+            time_data.iloc[idx + 1]["arrival_time_parsed"]
+            - time_data.iloc[idx]["departure_time_parsed"]
+        )
+        time_data.loc[idx, "next_stop"] = f"{travel_time.seconds // 60} min"
+
+    time_data = time_data.drop(["arrival_time_parsed", "departure_time_parsed"], axis=1)
+
+    return chart_data, time_data

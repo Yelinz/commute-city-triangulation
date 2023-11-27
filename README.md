@@ -9,17 +9,21 @@ There are a lot of ghost stops in the GTFS data. Stops where the train parks or 
 This works on the GTFS data provided by https://opentransportdata.swiss.
 
 All operations are currently done in memory with pandas. That means the whole GTFS feed is loaded into memory.
-Might need migration to a Database, if the memory requirements are too high.
+Might need migration to a database, if the memory requirements are too high.
 
 ## Usage
+Requirements:
 - poetry
-- jupyter
-
-Select the destination city in the notebook and run the rest.
 
 Be sure to have the latest GTFS zip from which ever preferred source.
 
+The name should be `gtfs.zip`
+
+```sh
 poetry run streamlit run main.py
+```
+
+Refer to the documentation page on how to use the dashboard.
 
 
 TODO maps are currently broken https://github.com/randyzwitch/streamlit-folium/issues/148

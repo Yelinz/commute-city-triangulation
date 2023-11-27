@@ -19,4 +19,8 @@ Select the destination city in the notebook and run the rest.
 
 Be sure to have the latest GTFS zip from which ever preferred source.
 
-poetry run streamlit run app.py
+poetry run streamlit run main.py
+
+
+TODO maps are currently broken https://github.com/randyzwitch/streamlit-folium/issues/148
+shouldnt be long until a fix comes out

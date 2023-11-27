@@ -4,21 +4,20 @@ import pandas as pd
 from streamlit_folium import st_folium
 import folium
 import altair
-from st_pages import show_pages_from_config
+from st_pages import show_pages_from_config, add_page_title
 from processing import (
     load_feed,
     parse_stations,
     get_routes,
     get_stops,
     find_shared,
-    draw_routes,
-    draw_stations,
 )
+from rendering import generate_legend, draw_routes, draw_stations
 
 # Streamlit app
 #####
+add_page_title(page_title="Home", layout="wide")
 show_pages_from_config()
-st.header("Direct train connections")
 
 feed = load_feed()
 stations = parse_stations(feed)
@@ -89,15 +88,15 @@ st.markdown("""---""")
 ## Content
 #####
 map_container = st.container()
-map_col, map_legend_col = map_container.columns([2, 1])
 
 # with does not create a scope
-with map_col:
+with map_container:
     map = folium.Map(tiles="cartodbpositron")
 
-    routes_a_layer = draw_routes(stops_a, "viridis")
+    # TODO if two are selected only color in the shared routes, other will be gray
+    routes_a_layer = draw_routes(stops_a, "BuGn")
+    routes_b_layer = draw_routes(stops_b, "OrRd")
     stations_a_layer = draw_stations(stops_a, "#1b9e77")
-    routes_b_layer = draw_routes(stops_b, "plasma")
     stations_b_layer = draw_stations(stops_b, "#d95f02")
     stations_shared_layer = draw_stations(shared_stops, "#7570b3", False)
 
@@ -106,6 +105,8 @@ with map_col:
     stations_a_layer.add_to(map)
     stations_b_layer.add_to(map)
     stations_shared_layer.add_to(map)
+
+    map.get_root().add_child(generate_legend())
 
     selection = st_folium(
         map,
@@ -116,15 +117,11 @@ with map_col:
         use_container_width=True,
     )
 
-with map_legend_col:
-    # legend for route colors, city reachable colors
-    # create a legend with branca?
-    # https://nbviewer.org/gist/talbertc-usgs/18f8901fc98f109f2b71156cf3ac81cd
-    pass
-
+# TODO add text how many shared stations there are
 
 station_distance_container = st.container()
 with station_distance_container:
+    st.markdown("## Station overview of selected route")
     # after selected route
     # display every station and how long it takes to get from each one
     # some kind of graph
@@ -208,3 +205,36 @@ with station_distance_container:
             st.markdown("Select a route to display its stations")
     else:
         st.markdown("Select a route to display its stations")
+
+# TODO display routes of a and b seperatly
+
+mini_map_container = st.container()
+mini_a, mini_b = mini_map_container.columns(2)
+
+with mini_a:
+    st.markdown("## Routes and stations of destination A")
+    map_a = folium.Map(tiles="cartodbpositron")
+    routes_a_layer.add_to(map_a)
+    stations_a_layer.add_to(map_a)
+    st_folium(
+        map_a,
+        height=400,
+        zoom=8,
+        center=(46.848, 8.1336),
+        use_container_width=True,
+        key="mini_map_a",
+    )
+
+with mini_b:
+    st.markdown("## Routes and stations of destination B")
+    map_b = folium.Map(tiles="cartodbpositron")
+    routes_b_layer.add_to(map_b)
+    stations_b_layer.add_to(map_b)
+    st_folium(
+        map_b,
+        height=400,
+        zoom=8,
+        center=(46.848, 8.1336),
+        use_container_width=True,
+        key="mini_map_b",
+    )

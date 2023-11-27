@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import gtfs_kit
-import seaborn
-import folium
 
 
 @st.cache_data
@@ -120,57 +118,3 @@ def find_shared(_feed, a, b):
     duped = both.duplicated(["stop_id", "parent_station"])
     # zurich hb is missing rotkreuz aarau
     return both.loc[duped]
-
-
-def draw_stations(stations, color, circle=True):
-    marker_layer = folium.FeatureGroup(name="Stops")
-
-    for row in stations.to_dict(orient="records"):
-        location = [row["stop_lat"], row["stop_lon"]]
-        tooltip = row["stop_name"]
-        if circle:
-            folium.CircleMarker(
-                location=location,
-                tooltip=tooltip,
-                radius=3,
-                fill=True,
-                fillColor=color,
-                color="#000000",
-                weight=1,
-                fillOpacity=1,
-            ).add_to(marker_layer)
-        else:
-            icon_square = folium.plugins.BeautifyIcon(
-                icon_shape="rectangle-dot",
-                icon_size=[10, 10],
-                background_color=color,
-                border_width=2,
-            )
-            folium.Marker(
-                location,
-                tooltip=tooltip,
-                icon=icon_square,
-            ).add_to(marker_layer)
-
-    return marker_layer
-
-
-def draw_routes(stop_data, color_map_name):
-    path_layer = folium.FeatureGroup(name="Paths")
-    grouped = stop_data.sort_values(["trip_id", "stop_sequence"]).groupby("trip_id")
-    colors = seaborn.color_palette(color_map_name, n_colors=grouped.ngroups).as_hex()
-    idx = 0
-    for name, group in grouped:
-        stop_coords = []
-        tooltip_content = f"<span style='display: none'>[{group.iloc[0]['route_id']}]</span>{group.iloc[0]['route_short_name']}"
-
-        for row_index, row in group.iterrows():
-            stop_coords.append(row[["stop_lat", "stop_lon"]].values)
-            tooltip_content += f"<br/>{row['stop_name']}"
-
-            folium.PolyLine(
-                stop_coords, tooltip=tooltip_content, color=colors[idx]
-            ).add_to(path_layer)
-        idx += 1
-
-    return path_layer

@@ -120,6 +120,9 @@ with map_container:
         use_container_width=True,
         key="main_map",
     )
+    # TODO hover on station highlights the station in other charts
+    
+    st.markdown(f"Destination A and B have {len(shared_stops)} shared stops.")
 
 # TODO add text how many shared stations there are
 

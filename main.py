@@ -33,13 +33,13 @@ filter_col1, filter_col2 = filter_container.columns(2)
 
 # restricted to two for now
 selected_city_a = filter_col1.selectbox(
-    "Station A",
+    "Destination A",
     stations["stop_id"],
     None,
     format_func=lambda id: stations.loc[stations["stop_id"] == id]["stop_name"].iloc[0],
 )
 selected_city_b = filter_col1.selectbox(
-    "Station B",
+    "Destination B",
     stations["stop_id"],
     None,
     format_func=lambda id: stations.loc[stations["stop_id"] == id]["stop_name"].iloc[0],
@@ -70,7 +70,7 @@ relevant_hours = filter_col2.slider("Relevant hours", 0, 23, (6, 22), 1)
 if selected_city_a is not None and selected_city_a == selected_city_b:
     st.error("Same cities selected")
 
-
+both_selected = selected_city_a and selected_city_b
 stops_a = get_stops(
     feed,
     routes_a.loc[~routes_a["route_id"].isin(route_exclusion)]["route_id"],
@@ -83,7 +83,6 @@ stops_b = get_stops(
     active_weekdays,
     relevant_hours,
 )
-
 
 shared_stops = find_shared(feed, stops_a["stop_id"], stops_b["stop_id"])
 
@@ -99,12 +98,16 @@ with map_container:
     # TODO if two are selected only color in the shared routes, other will be gray
     routes_a_layer = draw_routes(stops_a, "BuGn")
     routes_b_layer = draw_routes(stops_b, "OrRd")
-    stations_a_layer = draw_stations(stops_a, "#1b9e77")
-    stations_b_layer = draw_stations(stops_b, "#d95f02")
-    stations_shared_layer = draw_stations(shared_stops, "#7570b3", False)
+    if both_selected:
+        routes_shared_layer = draw_routes(shared_stops, "inferno")
+    stations_a_layer = draw_stations(stops_a, "#ffffbf")
+    stations_b_layer = draw_stations(stops_b, "#91bfdb")
+    stations_shared_layer = draw_stations(shared_stops, "#fc8d59", False)
 
     routes_a_layer.add_to(map)
     routes_b_layer.add_to(map)
+    if both_selected:
+        routes_shared_layer.add_to(map)
     stations_a_layer.add_to(map)
     stations_b_layer.add_to(map)
     stations_shared_layer.add_to(map)
@@ -120,11 +123,10 @@ with map_container:
         use_container_width=True,
         key="main_map",
     )
-    # TODO hover on station highlights the station in other charts
-    
+
+    # TODO add text how many shared stations there are
     st.markdown(f"Destination A and B have {len(shared_stops)} shared stops.")
 
-# TODO add text how many shared stations there are
 
 station_distance_container = st.container()
 with station_distance_container:
@@ -184,6 +186,7 @@ with station_distance_container:
             st.altair_chart(layered, True)
         else:
             st.markdown("Select a route to display its stations")
+            # TODO hover/ click on station highlights the station in other charts
     else:
         st.markdown("Select a route to display its stations")
 
@@ -195,8 +198,11 @@ mini_a, mini_b = mini_map_container.columns(2)
 with mini_a:
     st.markdown("## Routes and stations of destination A")
     map_a = folium.Map(tiles="cartodbpositron")
+    routes_a_layer = draw_routes(stops_a, "plasma")
+    stations_a_layer = draw_stations(stops_a, "#ffffbf")
     routes_a_layer.add_to(map_a)
     stations_a_layer.add_to(map_a)
+    map.get_root().add_child(generate_legend())
     st_folium(
         map_a,
         height=400,
@@ -209,8 +215,11 @@ with mini_a:
 with mini_b:
     st.markdown("## Routes and stations of destination B")
     map_b = folium.Map(tiles="cartodbpositron")
+    routes_b_layer = draw_routes(stops_b, "cividis")
+    stations_b_layer = draw_stations(stops_b, "#91bfdb")
     routes_b_layer.add_to(map_b)
     stations_b_layer.add_to(map_b)
+    map.get_root().add_child(generate_legend())
     st_folium(
         map_b,
         height=400,

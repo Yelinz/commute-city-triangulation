@@ -24,7 +24,3 @@ poetry run streamlit run main.py
 ```
 
 Refer to the documentation page on how to use the dashboard.
-
-
-TODO maps are currently broken https://github.com/randyzwitch/streamlit-folium/issues/148
-shouldnt be long until a fix comes out

@@ -11,6 +11,9 @@ from streamlit_folium import st_folium
 import folium
 
 
+# FIXME: Doing labled train network visualization is not really possible 
+# bokeh 3.3, networkx: 3.2
+
 # maybe it would be more effective to have the feed as a global variable, instead of passing it in
 @st.cache_data
 def load_feed():
@@ -291,7 +294,7 @@ with map_legend_col:
     pass
 
 
-# networkx and bokeh are not suitable to display the line network
+# FIXME: networkx and bokeh are not suitable to display the line network
 # all nodes have the same shape, lables are very hacky
 station_distance_container = st.container()
 with station_distance_container:

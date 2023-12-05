@@ -36,10 +36,11 @@ def draw_stations(stations, color, circle=True):
     return marker_layer
 
 
-def draw_routes(stop_data, color_map_name):
+def draw_routes(stop_data, color_name, COLOR_TYPE="colormap"):
     path_layer = folium.FeatureGroup(name="Paths")
     grouped = stop_data.sort_values(["trip_id", "stop_sequence"]).groupby("trip_id")
-    colors = seaborn.color_palette(color_map_name, n_colors=grouped.ngroups).as_hex()
+    if COLOR_TYPE == "colormap":
+        colors = seaborn.color_palette(color_name, n_colors=grouped.ngroups).as_hex()
     idx = 0
     for name, group in grouped:
         stop_coords = []
@@ -49,47 +50,16 @@ def draw_routes(stop_data, color_map_name):
             stop_coords.append(row[["stop_lat", "stop_lon"]].values)
             tooltip_content += f"<br/>{row['stop_name']}"
 
-            folium.PolyLine(
-                stop_coords, tooltip=tooltip_content, color=colors[idx]
-            ).add_to(path_layer)
+            color = colors[idx] if COLOR_TYPE == "colormap" else color_name
+            folium.PolyLine(stop_coords, tooltip=tooltip_content, color=color).add_to(
+                path_layer
+            )
         idx += 1
 
     return path_layer
 
 
-def generate_legend():
-    # referenced from https://nbviewer.org/gist/talbertc-usgs/18f8901fc98f109f2b71156cf3ac81cd
-    template = """
-    {% macro html(this, kwargs) %}
-    <!doctype html>
-    <html lang="en">
-    <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-    <div id='maplegend' class='maplegend' 
-        style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.7); border-radius:6px; padding: 10px; font-size:14px; right: 20px; top: 20px;'
-    >
-        <div class='legend-title'>Legend</div>
-        <div class='legend-scale'>
-            <p>Stations</p>
-            <ul class='legend-stations'>
-                <li><span style='background:#1b9e77; border-radius:50px;'></span>Reachable by A</li>
-                <li><span style='background:#d95f02; border-radius:50px;'></span>Reachable by B</li>
-                <li><span style='background:#7570b3;'></span>Reachable by both</li>
-            </ul>
-            <p>Lines</p>
-            <ul class='legend-lines'>
-                <!-- BuGn and OrRd in css https://bennettfeely.com/scales/-->
-                <li><span style='background: #87c3c7; background-image: linear-gradient(90deg, #e5f5df, #d4eece, #bde5bf, #9fd9bb, #7bcbc4, #58b7cd, #399cc6, #1e7eb7, #0b60a1, #0b60a1);'></span>From destination A</li>
-                <li><span style='background: #eb8f70; background-image: linear-gradient(90deg, #feebcf, #fddcaf, #fdca94, #fdb07a, #fa8e5d, #f16c49, #e04630, #c81e13, #a70403, #a70403);'></span>From destination B</li>
-            </ul>
-        </div>
-    </div>
-    </body>
-    </html>
-
+LEGEND_STYLE = """
     <style type='text/css'>
         .maplegend .legend-title {
             text-align: left;
@@ -145,7 +115,120 @@ def generate_legend():
             color: #777;
         }
     </style>
-    {% endmacro %}"""
+"""
+
+
+def generate_main_legend():
+    # referenced from https://nbviewer.org/gist/talbertc-usgs/18f8901fc98f109f2b71156cf3ac81cd
+    template = f"""
+    {{% macro html(this, kwargs) %}}
+    <!doctype html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div id='maplegend' class='maplegend' 
+        style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.7); border-radius:6px; padding: 10px; font-size:14px; right: 20px; top: 20px;'
+    >
+        <div class='legend-title'>Legend</div>
+        <div class='legend-scale'>
+            <p>Stations</p>
+            <ul class='legend-stations'>
+                <li><span style='background:#ffffbf; border-radius:50px;'></span>Reachable by A</li>
+                <li><span style='background:#91bfdb; border-radius:50px;'></span>Reachable by B</li>
+                <li><span style='background:#fc8d59;'></span>Reachable by both</li>
+            </ul>
+            <p>Lines</p>
+            <ul class='legend-lines'>
+                <li><span style='background: #808080;'></span>Not shared routes</li>
+                <!-- inferno in css https://bennettfeely.com/scales/ -->
+                <li><span style='background: #eb8f70; background-image: linear-gradient(90deg, #000004, #160b39, #420a68, #6a176e, #932667, #ba3655, #dd513a, #f3761b, #fca50a, #f6d746, #f6d746);'></span>Shared routes</li>
+            </ul>
+        </div>
+    </div>
+    </body>
+    </html>
+    {LEGEND_STYLE}
+    {{% endmacro %}}
+    """
+
+    macro = MacroElement()
+    macro._template = Template(template)
+
+    return macro
+
+
+def generate_sub_a_legend():
+    template = f"""
+    {{% macro html(this, kwargs) %}}
+    <!doctype html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div id='maplegend' class='maplegend' 
+        style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.7); border-radius:6px; padding: 10px; font-size:14px; right: 20px; top: 20px;'
+    >
+        <div class='legend-title'>Legend</div>
+        <div class='legend-scale'>
+            <p>Stations</p>
+            <ul class='legend-stations'>
+                <li><span style='background:#ffffbf; border-radius:50px;'></span>Reachable by A</li>
+            </ul>
+            <p>Lines</p>
+            <ul class='legend-lines'>
+                <!-- plasma in css https://bennettfeely.com/scales/ -->
+                <li><span style='background: #a84a73; background-image: linear-gradient(90deg, #0d0887, #41049d, #6a00a8, #8f0da4, #b12a90, #cb4679, #e16462, #f1834c, #fca636, #fcce25, #fcce25);'></span>Shared routes</li>
+            </ul>
+        </div>
+    </div>
+    </body>
+    </html>
+    {LEGEND_STYLE}
+    {{% endmacro %}}
+    """
+
+    macro = MacroElement()
+    macro._template = Template(template)
+
+    return macro
+
+
+def generate_sub_b_legend():
+    template = f"""
+    {{% macro html(this, kwargs) %}}
+    <!doctype html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div id='maplegend' class='maplegend' 
+        style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.7); border-radius:6px; padding: 10px; font-size:14px; right: 20px; top: 20px;'
+    >
+        <div class='legend-title'>Legend</div>
+        <div class='legend-scale'>
+            <p>Stations</p>
+            <ul class='legend-stations'>
+                <li><span style='background:#91bfdb; border-radius:50px;'></span>Reachable by B</li>
+            </ul>
+            <p>Lines</p>
+            <ul class='legend-lines'>
+                <!-- viridis in css https://bennettfeely.com/scales/ -->
+                <li><span style='background: #4a7d70; background-image: linear-gradient(90deg, #440154, #482475, #414487, #355f8d, #2a788e, #21908d, #22a884, #42be71, #7ad151, #bddf26, #bddf26);'></span>Shared routes</li>
+            </ul>
+        </div>
+    </div>
+    </body>
+    </html>
+    {LEGEND_STYLE}
+    {{% endmacro %}}
+    """
 
     macro = MacroElement()
     macro._template = Template(template)

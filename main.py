@@ -13,7 +13,13 @@ from processing import (
     find_shared,
     route_details,
 )
-from rendering import generate_legend, draw_routes, draw_stations
+from rendering import (
+    generate_main_legend,
+    generate_sub_a_legend,
+    generate_sub_b_legend,
+    draw_routes,
+    draw_stations,
+)
 
 MAP_CENTER = (46.848, 8.1336)
 
@@ -70,7 +76,6 @@ relevant_hours = filter_col2.slider("Relevant hours", 0, 23, (6, 22), 1)
 if selected_city_a is not None and selected_city_a == selected_city_b:
     st.error("Same cities selected")
 
-both_selected = selected_city_a and selected_city_b
 stops_a = get_stops(
     feed,
     routes_a.loc[~routes_a["route_id"].isin(route_exclusion)]["route_id"],
@@ -84,7 +89,7 @@ stops_b = get_stops(
     relevant_hours,
 )
 
-shared_stops = find_shared(feed, stops_a["stop_id"], stops_b["stop_id"])
+shared_stops = find_shared(stops_a, stops_b)
 
 st.markdown("""---""")
 ## Content
@@ -93,29 +98,29 @@ map_container = st.container()
 
 # with does not create a scope
 with map_container:
-    map = folium.Map(tiles="cartodbpositron")
+    map_main = folium.Map(tiles="cartodbpositron")
 
     # TODO if two are selected only color in the shared routes, other will be gray
-    routes_a_layer = draw_routes(stops_a, "BuGn")
-    routes_b_layer = draw_routes(stops_b, "OrRd")
-    if both_selected:
-        routes_shared_layer = draw_routes(shared_stops, "inferno")
+    routes_a_layer = draw_routes(stops_a, "#808080", "single")
+    routes_b_layer = draw_routes(stops_b, "#808080", "single")
     stations_a_layer = draw_stations(stops_a, "#ffffbf")
     stations_b_layer = draw_stations(stops_b, "#91bfdb")
     stations_shared_layer = draw_stations(shared_stops, "#fc8d59", False)
 
-    routes_a_layer.add_to(map)
-    routes_b_layer.add_to(map)
-    if both_selected:
-        routes_shared_layer.add_to(map)
-    stations_a_layer.add_to(map)
-    stations_b_layer.add_to(map)
-    stations_shared_layer.add_to(map)
+    routes_a_layer.add_to(map_main)
+    routes_b_layer.add_to(map_main)
+    # determining shared routes is not the same as shared stops
+    # if len(shared_stops):
+    #    routes_shared_layer = draw_routes(shared_stops, "inferno")
+    #   routes_shared_layer.add_to(map_main)
+    stations_a_layer.add_to(map_main)
+    stations_b_layer.add_to(map_main)
+    stations_shared_layer.add_to(map_main)
 
-    map.get_root().add_child(generate_legend())
+    map_main.get_root().add_child(generate_main_legend())
 
     selection = st_folium(
-        map,
+        map_main,
         height=800,
         returned_objects=["last_object_clicked_tooltip"],
         zoom=8,
@@ -185,13 +190,12 @@ with station_distance_container:
 
             st.altair_chart(layered, True)
         else:
-            st.markdown("Select a route to display its stations")
+            st.markdown("Select a route from above to display its stations")
             # TODO hover/ click on station highlights the station in other charts
     else:
-        st.markdown("Select a route to display its stations")
+        st.markdown("Select a route from above to display its stations")
 
 # TODO display routes of a and b seperatly
-
 mini_map_container = st.container()
 mini_a, mini_b = mini_map_container.columns(2)
 
@@ -202,7 +206,7 @@ with mini_a:
     stations_a_layer = draw_stations(stops_a, "#ffffbf")
     routes_a_layer.add_to(map_a)
     stations_a_layer.add_to(map_a)
-    map.get_root().add_child(generate_legend())
+    map_a.get_root().add_child(generate_sub_a_legend())
     st_folium(
         map_a,
         height=400,
@@ -215,11 +219,11 @@ with mini_a:
 with mini_b:
     st.markdown("## Routes and stations of destination B")
     map_b = folium.Map(tiles="cartodbpositron")
-    routes_b_layer = draw_routes(stops_b, "cividis")
+    routes_b_layer = draw_routes(stops_b, "viridis")
     stations_b_layer = draw_stations(stops_b, "#91bfdb")
     routes_b_layer.add_to(map_b)
     stations_b_layer.add_to(map_b)
-    map.get_root().add_child(generate_legend())
+    map_b.get_root().add_child(generate_sub_b_legend())
     st_folium(
         map_b,
         height=400,

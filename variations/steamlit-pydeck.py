@@ -6,7 +6,7 @@ import pydeck
 
 
 #
-# FIXME: Steamlit version has to be abandoned as there is no good interactivity.
+# FIXME: pydeck version has to be abandoned as there is no good interactivity.
 # https://discuss.streamlit.io/t/is-pydeck-chart-click-interaction-possible/49965/2
 # version 1.28
 #

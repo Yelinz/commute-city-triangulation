@@ -7,6 +7,9 @@ from collections import defaultdict
 
 # maybe dash bootstrap
 
+# FIXME: no line interactivity
+# dash: 2.14, plotly: 5.18
+
 feed = gtfs_kit.read_feed("gtfs_fp2024_2023-10-18_04-15.zip", dist_units="km")
 
 app = Dash(__name__)

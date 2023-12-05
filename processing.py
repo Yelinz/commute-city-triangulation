@@ -3,21 +3,21 @@ import pandas as pd
 import gtfs_kit
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Loading initial data...")
 def load_feed():
     feed = gtfs_kit.read_feed("gtfs.zip", dist_units="km")
     # TODO maybe clean some stations
     return feed
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Loading initial data...")
 def parse_stations(_feed):
     return _feed.stops.loc[_feed.stops.stop_id.str.contains("Parent")].sort_values(
         "stop_name"
     )
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Finding routes...")
 def get_routes(_feed, station_id):
     platforms = _feed.stops.loc[_feed.stops["parent_station"] == station_id]
     all_stop_times = _feed.stop_times.loc[
@@ -32,7 +32,7 @@ def get_routes(_feed, station_id):
     return routes
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Finding stops...")
 def get_stops(_feed, route_ids, active_days, relevant_hours):
     # filter by weekdays
     query_string = ""
@@ -97,6 +97,7 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
     longest_trips_stations = _feed.stops.loc[
         _feed.stops["stop_id"].isin(longest_trips_stop_times["stop_id"])
     ]
+
     # TODO: consider all trip options, as some might have divergent routes
     # dedupe stops per route
     # deduped_stops = stops.sort_values(["stop_sequence"]).groupby("route_id").apply(lambda x: x.loc[x["stop_sequence"].idxmax()])
@@ -109,18 +110,22 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
     return stop_data
 
 
-@st.cache_data
-def find_shared(_feed, a, b):
-    all_a = _feed.stops.loc[_feed.stops["stop_id"].isin(a)]
-    all_b = _feed.stops.loc[_feed.stops["stop_id"].isin(b)]
+#@st.cache_data
+def find_shared(_stops_a, _stops_b):
+    return (
+        pd.merge(_stops_a, _stops_b, how="inner", on=["parent_station"])
+        .drop_duplicates("parent_station")
+        .rename(
+            columns={
+                "stop_name_x": "stop_name",
+                "stop_lat_x": "stop_lat",
+                "stop_lon_x": "stop_lon",
+            }
+        )
+    )
 
-    both = pd.concat([all_a, all_b])
-    duped = both.duplicated(["stop_id", "parent_station"])
-    # zurich hb is missing rotkreuz aarau
-    return both.loc[duped]
 
-
-@st.cache_data
+@st.cache_data(show_spinner="Finding route details...")
 def route_details(_selected_route, _shared_stops):
     selected_route = _selected_route.sort_values(["stop_sequence", "route_id"])
     chart_data = selected_route[["stop_sequence", "route_short_name", "stop_name"]]

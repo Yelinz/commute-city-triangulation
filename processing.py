@@ -117,6 +117,7 @@ def find_shared(_stops_a, _stops_b):
         .drop_duplicates("parent_station")
         .rename(
             columns={
+                "stop_id_x": "stop_id",
                 "stop_name_x": "stop_name",
                 "stop_lat_x": "stop_lat",
                 "stop_lon_x": "stop_lon",

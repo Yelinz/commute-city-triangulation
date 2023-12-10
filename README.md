@@ -15,12 +15,18 @@ Might need migration to a database, if the memory requirements are too high.
 Requirements:
 - poetry
 
+Install the dependencies
+```sh
+poetry install
+```
+
 Be sure to have the latest GTFS zip from which ever preferred source.
 
-The name should be `gtfs.zip`
+The name should be `gtfs.zip` and located in the root of the project.
 
+To start the dashboard run:
 ```sh
 poetry run streamlit run main.py
 ```
 
-Refer to the documentation page on how to use the dashboard.
+Refer to the documentation page on how to use the dashboard and what it conatins.

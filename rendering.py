@@ -76,7 +76,7 @@ LEGEND_STYLE = """
         margin: 0;
         margin-bottom: 5px;
         padding: 0;
-        float: left;
+        //float: left;
         list-style: none;
     }
     .maplegend .legend-scale ul li {

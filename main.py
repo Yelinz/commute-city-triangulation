@@ -165,6 +165,9 @@ with station_distance_container:
                 )
             )
 
+            # TODO selecting different route does not update
+            # improve colors of text, shared
+            # move legend up?
             chart = altair.Chart(
                 chart_data, title="Reachable stations from selected route"
             ).encode(

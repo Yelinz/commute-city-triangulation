@@ -149,7 +149,10 @@ with station_distance_container:
                 relevant_hours,
             )
 
-            chart_data, time_data = route_details(selected_route, shared_stops)
+            print(selected_route, shared_stops)
+            chart_data, time_data = route_details(
+                selected_route, shared_stops["parent_station"]
+            )
 
             scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
             time_annotations = (
@@ -175,21 +178,34 @@ with station_distance_container:
                     "stop_sequence",
                     scale=scale,
                     axis=altair.Axis(grid=False, labels=False),
-                ).title("Stops"),
+                ).title("Stops", color="black"),
                 altair.Y("route_short_name").title(""),
             )
 
-            layered = altair.layer(
-                chart.mark_line(),
-                chart.mark_point(filled=True, opacity=1).encode(
-                    shape=altair.Shape(
-                        "shared", scale=altair.Scale(range=["circle", "square"])
-                    ).title("Station reachable by both"),
-                    color="shared",
-                ),
-                chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
-                time_annotations,
-            ).configure_point(size=200)
+            layered = (
+                altair.layer(
+                    chart.mark_line(),
+                    chart.mark_point(filled=True, opacity=1).encode(
+                        shape=altair.Shape(
+                            "shared",
+                            scale=altair.Scale(range=["circle", "square"]),
+                            legend=altair.Legend(
+                                orient="right",
+                                legendX=-50,
+                                legendY=-500,
+                                direction="vertical",
+                                # titleAnchor="middle",
+                            ),
+                        ).title("Station reachable by both"),
+                        color=altair.Color("shared", scale=altair.Scale(domain=[True, False], range=["red", "blue"]))
+                    ),
+                    chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
+                    time_annotations,
+                )
+                .configure_point(size=200)
+                .configure_axisLeft(labelColor="black")
+                .configure_axisBottom(titleColor="black")
+            )
 
             st.altair_chart(layered, True)
         else:

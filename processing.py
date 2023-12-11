@@ -121,17 +121,18 @@ def find_shared(_stops_a, _stops_b):
                 "stop_name_x": "stop_name",
                 "stop_lat_x": "stop_lat",
                 "stop_lon_x": "stop_lon",
+                "parent_station_x": "parent_station"
             }
         )
     )
 
 
-@st.cache_data(show_spinner="Finding route details...")
-def route_details(_selected_route, _shared_stops):
+#@st.cache_data(show_spinner="Finding route details...")
+def route_details(_selected_route, shared_stops):
     selected_route = _selected_route.sort_values(["stop_sequence", "route_id"])
     chart_data = selected_route[["stop_sequence", "route_short_name", "stop_name"]]
     chart_data = chart_data.assign(
-        shared=selected_route["stop_id"].isin(_shared_stops["stop_id"])
+        shared=selected_route["parent_station"].isin(shared_stops)
     )
 
     time_data = selected_route[["stop_sequence", "route_short_name"]]

@@ -1,6 +1,7 @@
-from branca.element import Template, MacroElement
-import seaborn
+import altair
 import folium
+import seaborn
+from branca.element import MacroElement, Template
 
 
 def draw_stations(stations, color, circle=True):
@@ -57,6 +58,61 @@ def draw_routes(stop_data, color_name, COLOR_TYPE="colormap"):
         idx += 1
 
     return path_layer
+
+
+def draw_route_detail(chart_data, time_data):
+    scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
+    time_annotations = (
+        altair.Chart(time_data)
+        .mark_text(dy=15)
+        .encode(
+            altair.X(
+                "stop_sequence",
+                scale=scale,
+            ),
+            altair.Y("route_short_name"),
+            altair.Text("next_stop"),
+        )
+    )
+
+    chart = altair.Chart(
+        chart_data, title="Reachable stations from selected route"
+    ).encode(
+        altair.X(
+            "stop_sequence",
+            scale=scale,
+            axis=altair.Axis(grid=False, labels=False),
+        ).title("Stops", color="black"),
+        altair.Y("route_short_name").title(""),
+    )
+
+    layered = (
+        altair.layer(
+            chart.mark_line(),
+            # TODO move legend up?
+            chart.mark_point(filled=True, opacity=1).encode(
+                shape=altair.Shape(
+                    "shared",
+                    scale=altair.Scale(
+                        domain=[True, False], range=["square", "circle"]
+                    ),
+                ).title("Station reachable by both"),
+                color=altair.Color(
+                    "shared",
+                    scale=altair.Scale(
+                        domain=[True, False], range=["#fc8d59", "#91bfdb"]
+                    ),
+                ),
+            ),
+            chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
+            time_annotations,
+        )
+        .configure_point(size=200)
+        .configure_axisLeft(labelColor="black")
+        .configure_axisBottom(titleColor="black")
+    )
+
+    return layered
 
 
 LEGEND_STYLE = """

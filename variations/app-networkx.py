@@ -1,15 +1,15 @@
 import re
-import streamlit as st
-import pandas as pd
-import gtfs_kit
-import seaborn
-from bokeh.models import Circle, MultiLine, CustomJSTransform, LabelSet
-from bokeh.transform import transform
-from bokeh.plotting import figure, from_networkx
-import networkx
-from streamlit_folium import st_folium
-import folium
 
+import folium
+import gtfs_kit
+import networkx
+import pandas as pd
+import seaborn
+import streamlit as st
+from bokeh.models import Circle, CustomJSTransform, LabelSet, MultiLine
+from bokeh.plotting import figure, from_networkx
+from bokeh.transform import transform
+from streamlit_folium import st_folium
 
 # FIXME: Doing labled train network visualization is not really possible 
 # bokeh 3.3, networkx: 3.2

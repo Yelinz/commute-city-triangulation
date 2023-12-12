@@ -1,6 +1,6 @@
-import streamlit as st
-import pandas as pd
 import gtfs_kit
+import pandas as pd
+import streamlit as st
 
 
 @st.cache_data(show_spinner="Loading initial data...")
@@ -94,9 +94,9 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
     longest_trips_stop_times = _feed.stop_times.loc[
         _feed.stop_times["trip_id"].isin(longest_trips["trip_id"])
     ]
-    longest_trips_stations = _feed.stops.loc[
-        _feed.stops["stop_id"].isin(longest_trips_stop_times["stop_id"])
-    ]
+    # longest_trips_stations = _feed.stops.loc[
+    #    _feed.stops["stop_id"].isin(longest_trips_stop_times["stop_id"])
+    # ]
 
     # TODO: consider all trip options, as some might have divergent routes
     # dedupe stops per route
@@ -110,7 +110,6 @@ def get_stops(_feed, route_ids, active_days, relevant_hours):
     return stop_data
 
 
-#@st.cache_data
 def find_shared(_stops_a, _stops_b):
     return (
         pd.merge(_stops_a, _stops_b, how="inner", on=["parent_station"])
@@ -121,13 +120,12 @@ def find_shared(_stops_a, _stops_b):
                 "stop_name_x": "stop_name",
                 "stop_lat_x": "stop_lat",
                 "stop_lon_x": "stop_lon",
-                "parent_station_x": "parent_station"
+                "parent_station_x": "parent_station",
             }
         )
     )
 
 
-#@st.cache_data(show_spinner="Finding route details...")
 def route_details(_selected_route, shared_stops):
     selected_route = _selected_route.sort_values(["stop_sequence", "route_id"])
     chart_data = selected_route[["stop_sequence", "route_short_name", "stop_name"]]

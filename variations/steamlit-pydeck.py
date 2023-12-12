@@ -1,9 +1,8 @@
-import streamlit as st
-import pandas as pd
 import gtfs_kit
-import seaborn
+import pandas as pd
 import pydeck
-
+import seaborn
+import streamlit as st
 
 #
 # FIXME: pydeck version has to be abandoned as there is no good interactivity.

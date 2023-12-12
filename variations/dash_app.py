@@ -1,9 +1,10 @@
-from dash import Dash, html, dcc, callback, Output, Input
-import gtfs_kit
-import plotly.graph_objects as go
-import dash_cytoscape as cyto
-import pandas as pd
 from collections import defaultdict
+
+import dash_cytoscape as cyto
+import gtfs_kit
+import pandas as pd
+import plotly.graph_objects as go
+from dash import Dash, Input, Output, callback, dcc, html
 
 # maybe dash bootstrap
 

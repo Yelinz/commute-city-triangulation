@@ -1,25 +1,16 @@
 import re
-import streamlit as st
-import pandas as pd
-from streamlit_folium import st_folium
+
 import folium
-import altair
-from st_pages import show_pages_from_config, add_page_title
-from processing import (
-    load_feed,
-    parse_stations,
-    get_routes,
-    get_stops,
-    find_shared,
-    route_details,
-)
-from rendering import (
-    generate_main_legend,
-    generate_sub_a_legend,
-    generate_sub_b_legend,
-    draw_routes,
-    draw_stations,
-)
+import pandas as pd
+import streamlit as st
+from st_pages import add_page_title, show_pages_from_config
+from streamlit_folium import st_folium
+
+from processing import (find_shared, get_routes, get_stops, load_feed,
+                        parse_stations, route_details)
+from rendering import (draw_route_detail, draw_routes, draw_stations,
+                       generate_main_legend, generate_sub_a_legend,
+                       generate_sub_b_legend)
 
 MAP_CENTER = (46.848, 8.1336)
 
@@ -37,7 +28,7 @@ stations = parse_stations(feed)
 filter_container = st.container()
 filter_col1, filter_col2 = filter_container.columns(2)
 
-# restricted to two for now
+# TODO restricted to two for now, have it variable to min two and higher max
 selected_city_a = filter_col1.selectbox(
     "Destination A",
     stations["stop_id"],
@@ -100,7 +91,7 @@ map_container = st.container()
 with map_container:
     map_main = folium.Map(tiles="cartodbpositron")
 
-    # TODO if two are selected only color in the shared routes, other will be gray
+    # TODO if there are 100% shared routes, highlight
     routes_a_layer = draw_routes(stops_a, "#808080", "single")
     routes_b_layer = draw_routes(stops_b, "#808080", "single")
     stations_a_layer = draw_stations(stops_a, "#ffffbf")
@@ -109,10 +100,6 @@ with map_container:
 
     routes_a_layer.add_to(map_main)
     routes_b_layer.add_to(map_main)
-    # determining shared routes is not the same as shared stops
-    # if len(shared_stops):
-    #    routes_shared_layer = draw_routes(shared_stops, "inferno")
-    #   routes_shared_layer.add_to(map_main)
     stations_a_layer.add_to(map_main)
     stations_b_layer.add_to(map_main)
     stations_shared_layer.add_to(map_main)
@@ -129,7 +116,6 @@ with map_container:
         key="main_map",
     )
 
-    # TODO add text how many shared stations there are
     st.markdown(f"Destination A and B have {len(shared_stops)} shared stops.")
 
 
@@ -149,72 +135,19 @@ with station_distance_container:
                 relevant_hours,
             )
 
-            print(selected_route, shared_stops)
             chart_data, time_data = route_details(
                 selected_route, shared_stops["parent_station"]
             )
 
-            scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
-            time_annotations = (
-                altair.Chart(time_data)
-                .mark_text(dy=15)
-                .encode(
-                    altair.X(
-                        "stop_sequence",
-                        scale=scale,
-                    ),
-                    altair.Y("route_short_name"),
-                    altair.Text("next_stop"),
-                )
-            )
+            detail_chart = draw_route_detail(chart_data, time_data)
 
-            # TODO selecting different route does not update
-            # improve colors of text, shared
-            # move legend up?
-            chart = altair.Chart(
-                chart_data, title="Reachable stations from selected route"
-            ).encode(
-                altair.X(
-                    "stop_sequence",
-                    scale=scale,
-                    axis=altair.Axis(grid=False, labels=False),
-                ).title("Stops", color="black"),
-                altair.Y("route_short_name").title(""),
-            )
-
-            layered = (
-                altair.layer(
-                    chart.mark_line(),
-                    chart.mark_point(filled=True, opacity=1).encode(
-                        shape=altair.Shape(
-                            "shared",
-                            scale=altair.Scale(range=["circle", "square"]),
-                            legend=altair.Legend(
-                                orient="right",
-                                legendX=-50,
-                                legendY=-500,
-                                direction="vertical",
-                                # titleAnchor="middle",
-                            ),
-                        ).title("Station reachable by both"),
-                        color=altair.Color("shared", scale=altair.Scale(domain=[True, False], range=["red", "blue"]))
-                    ),
-                    chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
-                    time_annotations,
-                )
-                .configure_point(size=200)
-                .configure_axisLeft(labelColor="black")
-                .configure_axisBottom(titleColor="black")
-            )
-
-            st.altair_chart(layered, True)
+            st.altair_chart(detail_chart, True)
         else:
             st.markdown("Select a route from above to display its stations")
             # TODO hover/ click on station highlights the station in other charts
     else:
         st.markdown("Select a route from above to display its stations")
 
-# TODO display routes of a and b seperatly
 mini_map_container = st.container()
 mini_a, mini_b = mini_map_container.columns(2)
 

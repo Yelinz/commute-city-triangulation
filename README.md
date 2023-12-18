@@ -24,6 +24,8 @@ Be sure to have the latest GTFS zip from which ever preferred source.
 
 The name should be `gtfs.zip` and located in the root of the project.
 
+There is a example gtfs file provided but it will not be up to date.
+
 To start the dashboard run:
 ```sh
 poetry run streamlit run main.py

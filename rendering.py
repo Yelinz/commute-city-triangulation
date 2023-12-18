@@ -61,6 +61,7 @@ def draw_routes(stop_data, color_name, COLOR_TYPE="colormap"):
 
 
 def draw_route_detail(chart_data, time_data):
+    # FIXME on dark mode text has to be white and vice versa
     scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
     time_annotations = (
         altair.Chart(time_data)
@@ -167,8 +168,8 @@ LEGEND_STYLE = """
         color: #777;
         clear: both;
     }
-    .maplegend a {
-        color: #777;
+    .maplegend {
+        color: #000 !important;
     }
 </style>
 """

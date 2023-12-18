@@ -8,8 +8,6 @@ It is not intended to show last kilometer (last mile) solutions, but rather over
 The displayed routes are only as accurate as the SBB provides. Which means it is fairly accurate but some ghost routes might exist. That means the GTFS data includes a stop in some location, while in reality and on sbb.ch it is not listed.
 There are a lot of ghost stops in the GTFS data. Stops where the train parks or so I assume but no passengers board.
 
-Rendered version: https://commute-triangulation.streamlit.app/
-
 This works on the GTFS data provided by https://opentransportdata.swiss.
 
 All operations are currently done in memory with pandas. That means the whole GTFS feed is loaded into memory.
@@ -36,3 +34,9 @@ poetry run streamlit run main.py
 ```
 
 Refer to the documentation page on how to use the dashboard and what it conatins.
+
+## Info
+Deployed version: https://commute-triangulation.streamlit.app/
+
+This dashboard was created in the DVIZ lectures at HSLU.
+The required [project report](Report.pdf) is also in the repository.

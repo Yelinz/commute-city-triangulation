@@ -61,7 +61,6 @@ def draw_routes(stop_data, color_name, COLOR_TYPE="colormap"):
 
 
 def draw_route_detail(chart_data, time_data):
-    # FIXME on dark mode text has to be white and vice versa
     scale = altair.Scale(domain=[0.8, chart_data["stop_sequence"].max() + 0.2])
     time_annotations = (
         altair.Chart(time_data)
@@ -90,14 +89,19 @@ def draw_route_detail(chart_data, time_data):
     layered = (
         altair.layer(
             chart.mark_line(),
-            # TODO move legend up?
             chart.mark_point(filled=True, opacity=1).encode(
                 shape=altair.Shape(
                     "shared",
                     scale=altair.Scale(
                         domain=[True, False], range=["square", "circle"]
                     ),
-                ).title("Station reachable by both"),
+                    # TODO move legend up?
+                    legend=altair.Legend(
+                        title="Station reachable by both",
+                        titleColor="#000000",
+                        labelColor="#000000",
+                    ),
+                ),
                 color=altair.Color(
                     "shared",
                     scale=altair.Scale(
@@ -108,9 +112,12 @@ def draw_route_detail(chart_data, time_data):
             chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
             time_annotations,
         )
-        .configure_point(size=200)
-        .configure_axisLeft(labelColor="black")
-        .configure_axisBottom(titleColor="black")
+        .configure(
+            background="#ffffff",
+            axisLeft={"labelColor": "#000000"},
+            axisBottom={"titleColor": "#000000"},
+            point=altair.MarkConfig(size=200)
+        )
     )
 
     return layered

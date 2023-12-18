@@ -36,17 +36,22 @@ For example some lines only exist on the weekend or late in the night. Which do 
 ## Charts
 There are 4 charts in total.
 
-One main map which shows the stations and if it can be reached from both destinations.
+One main map which shows the stops and if it can be reached from both destinations.
 
 A line overview which appears after clicking on a line on the main map. It shows the stops and the time it takes to get in between them. 
 
-Two smaller maps which show the lines which stop at either Destination A or B. One small map for each destination and their lines.
+Two smaller maps which show the lines which stop at either destination A or B. One small map for each destination and their lines.
 
 
 ## Glossary
 
-Line
-Stop
-Station
+- Line
+A train line such as S1 or IC1. 
+- Stop
+A train station or stop such as Zürich HB or Bern.
+
+# Links
+Source code: https://github.com/Yelinz/commute-city-triangulation
+Rendered: https://commute-triangulation.streamlit.app/
 """
 )

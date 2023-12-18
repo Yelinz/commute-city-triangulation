@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "commute-city-triangulation"
 version = "0.1.0"
-description = ""
+description = "Find a location in the Swiss train network from which you can reach multiple destinations directly."
 authors = ["Yelin Zhang <y3lin.zhang@gmail.com>"]
 readme = "README.md"
 

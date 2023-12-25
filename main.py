@@ -6,13 +6,26 @@ import streamlit as st
 from st_pages import add_page_title, show_pages_from_config
 from streamlit_folium import st_folium
 
-from processing import (find_shared, get_routes, get_stops, load_feed,
-                        parse_stations, route_details)
-from rendering import (draw_route_detail, draw_routes, draw_stations,
-                       generate_main_legend, generate_sub_a_legend,
-                       generate_sub_b_legend)
+from processing import (
+    find_shared,
+    get_routes,
+    get_stops,
+    load_feed,
+    parse_stations,
+    route_details,
+)
+from rendering import (
+    draw_route_detail,
+    draw_routes,
+    draw_stations,
+    generate_main_legend,
+    generate_sub_a_legend,
+    generate_sub_b_legend,
+)
 
 MAP_CENTER = (46.848, 8.1336)
+COLORS = ["#ffffbf", "#91bfdb"]
+COLOR_SHARED = "#fc8d59"
 
 # Streamlit app
 #####
@@ -92,17 +105,42 @@ with map_container:
     map_main = folium.Map(tiles="cartodbpositron")
 
     # TODO if there are 100% shared routes, highlight
+    COLOR_A = COLORS[0]
+    COLOR_B = COLORS[1]
+
     routes_a_layer = draw_routes(stops_a, "#808080", "single")
     routes_b_layer = draw_routes(stops_b, "#808080", "single")
-    stations_a_layer = draw_stations(stops_a, "#ffffbf")
-    stations_b_layer = draw_stations(stops_b, "#91bfdb")
-    stations_shared_layer = draw_stations(shared_stops, "#fc8d59", False)
+    stations_a_layer = draw_stations(stops_a, COLOR_A)
+    stations_b_layer = draw_stations(stops_b, COLOR_B)
+    stations_shared_layer = draw_stations(shared_stops, COLOR_SHARED, "square")
+
+    # if start is in shared use shared color
+    if selected_city_a in shared_stops["parent_station"].values:
+        COLOR_A = COLOR_SHARED
+    if selected_city_b in shared_stops["parent_station"].values:
+        COLOR_B = COLOR_SHARED
+    start_a = draw_stations(
+        stops_a.loc[stops_a["parent_station"] == selected_city_a].drop_duplicates(
+            "parent_station"
+        ),
+        COLOR_A,
+        "star",
+    )
+    start_b = draw_stations(
+        stops_b.loc[stops_b["parent_station"] == selected_city_b].drop_duplicates(
+            "parent_station"
+        ),
+        COLOR_B,
+        "star",
+    )
 
     routes_a_layer.add_to(map_main)
     routes_b_layer.add_to(map_main)
     stations_a_layer.add_to(map_main)
     stations_b_layer.add_to(map_main)
     stations_shared_layer.add_to(map_main)
+    start_a.add_to(map_main)
+    start_b.add_to(map_main)
 
     map_main.get_root().add_child(generate_main_legend())
 

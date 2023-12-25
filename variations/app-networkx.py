@@ -11,8 +11,9 @@ from bokeh.plotting import figure, from_networkx
 from bokeh.transform import transform
 from streamlit_folium import st_folium
 
-# FIXME: Doing labled train network visualization is not really possible 
+# FIXME: Doing labled train network visualization is not really possible
 # bokeh 3.3, networkx: 3.2
+
 
 # maybe it would be more effective to have the feed as a global variable, instead of passing it in
 @st.cache_data

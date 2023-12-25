@@ -2,15 +2,16 @@ import altair
 import folium
 import seaborn
 from branca.element import MacroElement, Template
+from uuid import uuid4
 
 
-def draw_stations(stations, color, circle=True):
-    marker_layer = folium.FeatureGroup(name="Stops")
+def draw_stations(stations, color, shape="circle"):
+    marker_layer = folium.FeatureGroup(name=f"Stops {uuid4()}")
 
     for row in stations.to_dict(orient="records"):
         location = [row["stop_lat"], row["stop_lon"]]
         tooltip = row["stop_name"]
-        if circle:
+        if shape == "circle":
             folium.CircleMarker(
                 location=location,
                 tooltip=tooltip,
@@ -21,17 +22,37 @@ def draw_stations(stations, color, circle=True):
                 weight=1,
                 fillOpacity=1,
             ).add_to(marker_layer)
-        else:
-            icon_square = folium.plugins.BeautifyIcon(
+        elif shape == "square":
+            icon = folium.plugins.BeautifyIcon(
                 icon_shape="rectangle-dot",
                 icon_size=[10, 10],
                 background_color=color,
-                border_width=2,
+                border_width=1,
             )
             folium.Marker(
                 location,
                 tooltip=tooltip,
-                icon=icon_square,
+                icon=icon,
+            ).add_to(marker_layer)
+        else:
+            # icon = folium.plugins.BeautifyIcon(
+            #     icon=shape,
+            #     inner_icon_style=f'color:{color};font-size:15px;background-color:black;border: 3px solid black;',
+            #     background_color='transparent',
+            #     border_color='transparent',
+            # )
+            icon = folium.plugins.BeautifyIcon(
+                icon=shape,
+                inner_icon_style="color:black;font-size:15px",
+                icon_shape="rectangle-dot",
+                icon_size=[10, 10],
+                # background_color=color,
+                border_width=1,
+            )
+            folium.Marker(
+                location,
+                tooltip=tooltip,
+                icon=icon,
             ).add_to(marker_layer)
 
     return marker_layer
@@ -86,38 +107,31 @@ def draw_route_detail(chart_data, time_data):
         altair.Y("route_short_name").title(""),
     )
 
-    layered = (
-        altair.layer(
-            chart.mark_line(),
-            chart.mark_point(filled=True, opacity=1).encode(
-                shape=altair.Shape(
-                    "shared",
-                    scale=altair.Scale(
-                        domain=[True, False], range=["square", "circle"]
-                    ),
-                    # TODO move legend up?
-                    legend=altair.Legend(
-                        title="Station reachable by both",
-                        titleColor="#000000",
-                        labelColor="#000000",
-                    ),
-                ),
-                color=altair.Color(
-                    "shared",
-                    scale=altair.Scale(
-                        domain=[True, False], range=["#fc8d59", "#91bfdb"]
-                    ),
+    layered = altair.layer(
+        chart.mark_line(),
+        chart.mark_point(filled=True, opacity=1).encode(
+            shape=altair.Shape(
+                "shared",
+                scale=altair.Scale(domain=[True, False], range=["square", "circle"]),
+                # TODO move legend up?
+                legend=altair.Legend(
+                    title="Station reachable by both",
+                    titleColor="#000000",
+                    labelColor="#000000",
                 ),
             ),
-            chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
-            time_annotations,
-        )
-        .configure(
-            background="#ffffff",
-            axisLeft={"labelColor": "#000000"},
-            axisBottom={"titleColor": "#000000"},
-            point=altair.MarkConfig(size=200)
-        )
+            color=altair.Color(
+                "shared",
+                scale=altair.Scale(domain=[True, False], range=["#fc8d59", "#91bfdb"]),
+            ),
+        ),
+        chart.mark_text(dy=-20).encode(altair.Text("stop_name")),
+        time_annotations,
+    ).configure(
+        background="#ffffff",
+        axisLeft={"labelColor": "#000000"},
+        axisBottom={"titleColor": "#000000"},
+        point=altair.MarkConfig(size=200),
     )
 
     return layered

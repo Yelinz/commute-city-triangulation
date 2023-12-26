@@ -115,22 +115,23 @@ with map_container:
     stations_shared_layer = draw_stations(shared_stops, COLOR_SHARED, "square")
 
     # if start is in shared use shared color
+    marker_a_color, marker_b_color = COLORS
     if selected_city_a in shared_stops["parent_station"].values:
-        COLOR_A = COLOR_SHARED
+        marker_a_color = COLOR_SHARED
     if selected_city_b in shared_stops["parent_station"].values:
-        COLOR_B = COLOR_SHARED
+        marker_b_color = COLOR_SHARED
     start_a = draw_stations(
         stops_a.loc[stops_a["parent_station"] == selected_city_a].drop_duplicates(
             "parent_station"
         ),
-        COLOR_A,
+        marker_a_color,
         "star",
     )
     start_b = draw_stations(
         stops_b.loc[stops_b["parent_station"] == selected_city_b].drop_duplicates(
             "parent_station"
         ),
-        COLOR_B,
+        marker_b_color,
         "star",
     )
 
@@ -194,8 +195,18 @@ with mini_a:
     map_a = folium.Map(tiles="cartodbpositron")
     routes_a_layer = draw_routes(stops_a, "plasma")
     stations_a_layer = draw_stations(stops_a, "#ffffbf")
+    start_a = draw_stations(
+        stops_a.loc[stops_a["parent_station"] == selected_city_a].drop_duplicates(
+            "parent_station"
+        ),
+        COLOR_A,
+        "star",
+    )
+
     routes_a_layer.add_to(map_a)
     stations_a_layer.add_to(map_a)
+    start_a.add_to(map_a)
+
     map_a.get_root().add_child(generate_sub_a_legend())
     st_folium(
         map_a,
@@ -211,8 +222,18 @@ with mini_b:
     map_b = folium.Map(tiles="cartodbpositron")
     routes_b_layer = draw_routes(stops_b, "viridis")
     stations_b_layer = draw_stations(stops_b, "#91bfdb")
+    start_b = draw_stations(
+        stops_b.loc[stops_b["parent_station"] == selected_city_b].drop_duplicates(
+            "parent_station"
+        ),
+        COLOR_B,
+        "star",
+    )
+
     routes_b_layer.add_to(map_b)
     stations_b_layer.add_to(map_b)
+    start_b.add_to(map_b)
+
     map_b.get_root().add_child(generate_sub_b_legend())
     st_folium(
         map_b,

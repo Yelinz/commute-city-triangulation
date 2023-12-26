@@ -35,18 +35,13 @@ def draw_stations(stations, color, shape="circle"):
                 icon=icon,
             ).add_to(marker_layer)
         else:
-            # icon = folium.plugins.BeautifyIcon(
-            #     icon=shape,
-            #     inner_icon_style=f'color:{color};font-size:15px;background-color:black;border: 3px solid black;',
-            #     background_color='transparent',
-            #     border_color='transparent',
-            # )
             icon = folium.plugins.BeautifyIcon(
                 icon=shape,
-                inner_icon_style="color:black;font-size:15px",
-                icon_shape="rectangle-dot",
-                icon_size=[10, 10],
-                # background_color=color,
+                inner_icon_style="font-size:10px",
+                icon_shape="marker",
+                icon_size=(20, 20),
+                icon_anchor=(10, 10),
+                background_color=color,
                 border_width=1,
             )
             folium.Marker(
@@ -228,8 +223,9 @@ def generate_main_legend():
             <li><span style='background:#ffffbf; border-radius:50px;'></span>Reachable by A</li>
             <li><span style='background:#91bfdb; border-radius:50px;'></span>Reachable by B</li>
             <li><span style='background:#fc8d59;'></span>Reachable by both</li>
+            <li><span class="beautify-marker marker" style='height: 20px; width: 20px'><i class="fa fa-star"></i></span><div style='margin-left: 3rem; margin-top: 0.5rem'>Destination A and B</div></li>
         </ul>
-        <p>Lines</p>
+        <p style='margin-top: 2rem'>Lines</p>
         <ul class='legend-lines'>
             <li><span style='background: #808080;'></span>Routes of A and B</li>
             <!-- 
@@ -253,8 +249,9 @@ def generate_sub_a_legend():
         <p>Stations</p>
         <ul class='legend-stations'>
             <li><span style='background:#ffffbf; border-radius:50px;'></span>Reachable by A</li>
+            <li><span class="beautify-marker marker" style='background:#ffffbf;height: 20px; width: 20px'><i class="fa fa-star"></i></span><div style='margin-left: 3rem; margin-top: 0.5rem'>Destination B</div></li>
         </ul>
-        <p>Lines</p>
+        <p style='margin-top: 2rem'>Lines</p>
         <ul class='legend-lines'>
             <!-- plasma in css https://bennettfeely.com/scales/ -->
             <li><span style='background: #a84a73; background-image: linear-gradient(90deg, #0d0887, #41049d, #6a00a8, #8f0da4, #b12a90, #cb4679, #e16462, #f1834c, #fca636, #fcce25, #fcce25);'></span>Shared routes</li>
@@ -274,8 +271,9 @@ def generate_sub_b_legend():
         <p>Stations</p>
         <ul class='legend-stations'>
             <li><span style='background:#91bfdb; border-radius:50px;'></span>Reachable by B</li>
+            <li><span class="beautify-marker marker" style='background:#91bfdb;height: 20px; width: 20px'><i class="fa fa-star"></i></span><div style='margin-left: 3rem; margin-top: 0.5rem'>Destination A</div></li>
         </ul>
-        <p>Lines</p>
+        <p style='margin-top: 2rem'>Lines</p>
         <ul class='legend-lines'>
             <!-- viridis in css https://bennettfeely.com/scales/ -->
             <li><span style='background: #4a7d70; background-image: linear-gradient(90deg, #440154, #482475, #414487, #355f8d, #2a788e, #21908d, #22a884, #42be71, #7ad151, #bddf26, #bddf26);'></span>Shared routes</li>

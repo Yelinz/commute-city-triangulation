@@ -155,7 +155,7 @@ with map_container:
         key="main_map",
     )
 
-    st.markdown(f"Destination A and B have {len(shared_stops)} shared stops.")
+    st.markdown(f"Destination A and B have {len(shared_stops)} shared stations.")
 
 
 station_distance_container = st.container()
@@ -215,6 +215,7 @@ with mini_a:
         center=MAP_CENTER,
         use_container_width=True,
         key="mini_map_a",
+        returned_objects=[],
     )
 
 with mini_b:
@@ -242,4 +243,5 @@ with mini_b:
         center=MAP_CENTER,
         use_container_width=True,
         key="mini_map_b",
+        returned_objects=[],
     )

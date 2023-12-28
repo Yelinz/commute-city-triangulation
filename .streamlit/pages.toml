@@ -1,7 +1,7 @@
 [[pages]]
 path = "main.py"
-name = "Home"
-icon = "🏠"
+name = "Dashboard"
+icon = "🚆"
 
 [[pages]]
 path = "pages/doc.py"

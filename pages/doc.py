@@ -45,9 +45,9 @@ Two smaller maps which show the lines which stop at either destination A or B. O
 
 ## Glossary
 
-- Line
+- Line, Route
 A train line such as S1 or IC1. 
-- Stop
+- Station, Destination, Stop
 A train station or stop such as Zürich HB or Bern.
 
 # Links
